@@ -31,28 +31,25 @@ end
 function block_matrix(A::AbstractMatrix, nl::Vector{Int}, nc::Vector{Int})
     numrows_A, numcols_A = size(A)
     @assert (numcols_A == sum(nc) && numrows_A == sum(nl)) "Labels given do not match matrix size"
-    A_11 = zeros(n1,m1)
-    A_12 = zeros(n1,m2)
-    A_21 = zeros(n2,m1)
-    A_22 = zeros(n2,m2)
-    for i ∈ 1:numrows_A
-        for j ∈ 1:numcols_A
-            if i <= n1
-                if j<= m1
-                    A_11[i,j] = A[i,j]
-                else
-                    A_12[i,j-m1] = A[i,j]
-                end
-            else
-                if j<= m1
-                    A_21[i-n1,j] = A[i,j]
-                else
-                    A_22[i-n1,j-m1] = A[i,j]
-                end
-            end
+    #Aqui eu vou criar as matrizes que vao ser retornadas  
+    n_matrizes_coluna = length(nc)
+    n_matrizes_linha = length(nl)
+    Array_Blocks = Array{Any}(undef, n_matrizes_linha, n_matrizes_coluna)
+    
+    counter_l=1
+    for i in 1:n_matrizes_linha
+        counter_c=1
+        for j in 1:n_matrizes_coluna
+            Matriz_Temporaria = @view A[counter_l:counter_l+nl[i]-1, counter_c:counter_c+nc[j]-1]
+            Array_Blocks[i,j]=Matriz_Temporaria
+            counter_c+=nc[j]
         end
+        counter_l+=nl[i]
     end
-    return A_11, A_12, A_21, A_22
+
+    return Array_Blocks
+ 
+   
 end
 #Depois tentar refazer para duas listas de valores
     
@@ -117,3 +114,7 @@ function solve_tsystem_eff!(A::AbstractMatrix, b::AbstractVector)
         b[i] /= A[i,i]#No caso da primeira linha so essa linha acontece
     end
 end
+
+#.29 RECURSIVO E NAO RECURSIVO
+#Cholesky
+#OUTER
